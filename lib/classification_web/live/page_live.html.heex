@@ -2,7 +2,7 @@
   <div>Actions</div>
   <div class={
       "w-[32em] h-1/2 mx-auto p-4 border-2 rounded-lg shadow-xl"
-      <> if length(@uploads.image.entries) == 0, do: "", else: " hidden" # 変更
+      <> if is_nil(@upload_file), do: "", else: " hidden"
   }>
     <form id="upload-form" class="h-full" phx-change="upload">
       <div phx-drop-target={@uploads.image.ref} class="h-full">
@@ -18,10 +18,14 @@
       </div>
     </form>
   </div>
-  <%= for entry <- @uploads.image.entries do %>
+  <%= if @upload_file do %>
     <figure>
-      <.live_img_preview entry={entry} />
-      <figcaption><%= entry.client_name %></figcaption>
+      <img 
+        alt="" 
+        class="w-full ml-4" 
+        src={"data:image/png;base64,#{Base.encode64(@upload_file)}"}
+      />
+      <figcaption><%= @filename %></figcaption>
     </figure>
   <% end %>
 </div>
