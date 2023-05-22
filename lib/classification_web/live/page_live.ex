@@ -7,6 +7,8 @@ defmodule ClassificationWeb.PageLive do
       :ok,
       socket
       |> assign(:upload_file, nil)
+      |> assign(:ans, "")
+      |> assign(:score, nil)
       |> assign(:filename, nil)
       |> allow_upload(
         :image,
@@ -37,5 +39,33 @@ defmodule ClassificationWeb.PageLive do
   @impl true
   def handle_event("upload", _params, socket) do
     {:noreply, socket}
+  end
+
+  def handle_event("predict", _params, socket) do
+    tensor =
+      socket.assigns.upload_file
+      |> StbImage.read_binary!()
+      |> StbImage.to_nx()
+
+    %{predictions: [%{label: ans, score: score}]} =
+      Nx.Serving.batched_run(Classification.Serving, tensor)
+
+    {
+      :noreply,
+      socket
+      |> assign(:ans, ans)
+      |> assign(:score, score)
+    }
+  end
+
+  def handle_event("clear", _params, socket) do
+    {
+      :noreply,
+      socket
+      |> assign(:upload_file, nil)
+      |> assign(:filename, "")
+      |> assign(:ans, "")
+      |> assign(:score, nil)
+    }
   end
 end

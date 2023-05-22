@@ -15,9 +15,13 @@ defmodule Classification.Application do
       # Start Finch
       {Finch, name: Classification.Finch},
       # Start the Endpoint (http/https)
-      ClassificationWeb.Endpoint
+      ClassificationWeb.Endpoint,
       # Start a worker by calling: Classification.Worker.start_link(arg)
       # {Classification.Worker, arg}
+      {Nx.Serving,
+       serving: Classification.ResNet.build_model(),
+       name: Classification.Serving,
+       batch_timeout: 100}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
